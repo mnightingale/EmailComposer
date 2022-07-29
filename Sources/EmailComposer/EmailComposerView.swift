@@ -44,6 +44,32 @@ struct EmailComposerView: UIViewControllerRepresentable {
         MFMailComposeViewController.canSendMail()
     }
     
+    ///  Create a URL that will open the devices mail application
+    /// - Returns: a URL if the device can open it, nil otherwise
+    public static func createEmailUrl(emailData: EmailData) -> URL? {
+        let subjectEncoded = emailData.subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+        let bodyEncoded = emailData.body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+        let to = emailData.recipients?.joined(separator: ",") ?? ""
+        
+        let gmailUrl = URL(string: "googlegmail://co?to=\(to)&subject=\(subjectEncoded)&body=\(bodyEncoded)")
+        let outlookUrl = URL(string: "ms-outlook://compose?to=\(to)&subject=\(subjectEncoded)")
+        let yahooMail = URL(string: "ymail://mail/compose?to=\(to)&subject=\(subjectEncoded)&body=\(bodyEncoded)")
+        let sparkUrl = URL(string: "readdle-spark://compose?recipient=\(to)&subject=\(subjectEncoded)&body=\(bodyEncoded)")
+        let defaultUrl = URL(string: "mailto:\(to)?subject=\(subjectEncoded)&body=\(bodyEncoded)")
+        
+        if let gmailUrl = gmailUrl, UIApplication.shared.canOpenURL(gmailUrl) {
+            return gmailUrl
+        } else if let outlookUrl = outlookUrl, UIApplication.shared.canOpenURL(outlookUrl) {
+            return outlookUrl
+        } else if let yahooMail = yahooMail, UIApplication.shared.canOpenURL(yahooMail) {
+            return yahooMail
+        } else if let sparkUrl = sparkUrl, UIApplication.shared.canOpenURL(sparkUrl) {
+            return sparkUrl
+        }
+        
+        return defaultUrl
+    }
+    
     class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
         var parent: EmailComposerView
         

@@ -28,7 +28,15 @@ struct EmailComposer<ContentView: View>: ViewModifier {
     var deviceCannotSendEmailsView: DeviceCannotSendEmailsView<ContentView>
     
     func body(content: Content) -> some View {
-        content
+        Button {
+            if EmailComposerView.canSendEmail() {
+                isPresented = true
+            } else if let link = EmailComposerView.createEmailUrl(emailData: emailData ?? EmailData()) {
+                UIApplication.shared.open(link)
+            } else {
+                isPresented = true
+            }
+        } label: {content}
             .sheet(isPresented: $isPresented, onDismiss: onDismiss) {
                 if EmailComposerView.canSendEmail() {
                     EmailComposerView(emailData: emailData ?? EmailData()) { result in
