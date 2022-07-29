@@ -29,10 +29,6 @@ struct EmailComposerView: UIViewControllerRepresentable {
             }
         }
         
-        if !MFMailComposeViewController.canSendMail() {
-            result(.success(.deviceCannotSendEmails))
-        }
-        
         return emailComposer
     }
     
